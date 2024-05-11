@@ -1,0 +1,29 @@
+services:
+  sales:
+    build:
+      dockerfile: Dockerfile.sales
+    ports:
+    - "8080:80"
+    links:
+    - mysqlito
+    volumes:
+    - ./Sales:/var/www/html
+  products:
+    build:
+      dockerfile: Dockerfile.products
+    ports:
+    - "8081:80"
+    links:
+    - mysqlito
+    volumes:
+    - ./Products:/var/www/html
+  mysqlito:
+    image: mysql
+    ports:
+    - "3306:3306"
+    environment:
+    - MYSQL_ROOT_PASSWORD=mai
+    volumes:
+    - mysql-data:/var/lib/mysql
+volumes:
+  mysql-data:
