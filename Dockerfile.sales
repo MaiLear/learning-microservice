@@ -4,7 +4,42 @@ RUN docker-php-ext-install pdo pdo_mysql
 
 RUN a2enmod rewrite
 
-COPY . /var/www/html
+#Para personalizar el archivo php.init se debe mover este  a la carpeta $PHP_INI_DIR/conf.d/directorio. como se muestra en la linea inferior, ya que sin esto no se puede encontrar el archivo php.init en el contenedor, una vez ejecutado el contenedor podemos acceder a este y encontrar el archivo php.init
+
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+
+#Dependecias o paquetes necesarios para el correcto funcionamiento de composer y mongodb
+#Dependencias necesarias para el correcto funcionamiento de composer: unzip
+#Dependecnias necesarias para el correcto funcionamiento de mongodb:libzip-dev,libssl-dev
+RUN apt-get update && apt-get install -y \
+    unzip \ 
+    libzip-dev \
+    libssl-dev
+
+
+#Dependecias o paquetes necesarios para el correcto funcionamiento de composer y mongod, este comando descarga mediante pcl el gestor de extensiones de php, el driver de mongo para php,y la extension zip para que composer pueda trabajar con archivos .zip
+
+#Dependencias necesarias para el correcto funcionamiento de composer: zip
+#Dependencias necesarias para el correcto funcionamiento de mongodb:mongodb
+
+#La siguiente linea docker-php-ext-enable mongodb zip habilita las extensiones dentro del contenedor,y en el archivo php.init automaticamente
+
+RUN pecl install mongodb-1.19.0 \
+&& pecl install zip \
+&& docker-php-ext-enable mongodb zip
+
+#Cuando COMPOSER_ALLOW_SUPERUSER está configurado en 1, Composer no mostrará una advertencia cuando se ejecute como superusuario, lo que puede ser útil en entornos donde es necesario ejecutar Composer con permisos de superusuario, por ejemplo, cuando se instalan paquetes globalmente.
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+#Comando para descargar composer en nuestro contenedor
+#Explicacion: desde la imagen de composer:2.7 copia lo que se encuentra en la carpeta /usr/bin/composer y lo copia en nuestro contenedor en la ruta /usr/bin/composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+
+
+
+COPY ./Sales /var/www/html
+
 
 EXPOSE 80
 

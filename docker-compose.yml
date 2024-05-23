@@ -6,6 +6,7 @@ services:
     - "8080:80"
     links:
     - mysqlito
+    - monguito
     volumes:
     - ./Sales:/var/www/html
   products:
@@ -15,6 +16,7 @@ services:
     - "8081:80"
     links:
     - mysqlito
+    - monguito
     volumes:
     - ./Products:/var/www/html
   mysqlito:
@@ -25,5 +27,15 @@ services:
     - MYSQL_ROOT_PASSWORD=mai
     volumes:
     - mysql-data:/var/lib/mysql
+  monguito:
+    image: mongo
+    ports:
+    - "27017:27017"
+    environment:
+    - MONGO_INITDB_ROOT_USERNAME=mai
+    - MONGO_INITDB_ROOT_PASSWORD=123
+    volumes:
+    - mongo-data:/data/db
 volumes:
   mysql-data:
+  mongo-data:

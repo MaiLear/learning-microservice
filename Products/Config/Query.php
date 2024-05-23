@@ -1,7 +1,7 @@
 <?php
 require_once './Config/DataBase/Factory/interfaces/IFactory.php';
 class Query implements IFactory{
-    private object $connection;
+    private  $connection;
 
     protected function __construct(private object $dataBaseFactory,string $dataBaseName){
         $this->getDb($dataBaseName);

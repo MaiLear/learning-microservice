@@ -4,7 +4,9 @@ $arrayBaseUrl = explode('/', $baseUrl);
 $nameController = empty($arrayBaseUrl[0]) ? 'HomeController' : $arrayBaseUrl[0] . 'Controller';
 $method =  empty($arrayBaseUrl[1]) ? 'index' : $arrayBaseUrl[1];
 $parameter = '';
-$routeController = "./Controllers/$nameController.php";
+$mysqlRouteController = "./Controllers/Mysql/$nameController.php";
+$mongoRouteController = "./Controllers/Mongodb/$nameController.php";
+$routeController = file_exists($mysqlRouteController) ?  $mysqlRouteController : (file_exists($mongoRouteController) ? $mongoRouteController : false);
 
 
 if (!empty($arrayBaseUrl[2])) {
@@ -14,7 +16,7 @@ if (!empty($arrayBaseUrl[2])) {
     $parameter = rtrim($parameter, ',');
 }
 
-if (file_exists($routeController)) {
+if ($routeController) {
     require_once $routeController;
     $controller = new $nameController();
     if (method_exists($controller, $method)) {

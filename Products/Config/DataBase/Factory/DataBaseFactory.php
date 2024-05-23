@@ -10,9 +10,9 @@ class DataBaseFactory implements IFactory{
                 require_once './Config/DataBase/Mysql.php';
                 return Mysql::connect();
                 break;
-            case 'POSGRESS':
-                require_once '../Posgress.php';
-                return 'por ahora nada';
+            case 'MONGO':
+                require_once './Config/DataBase/Mongodb.php';
+                return Mongo::connect();
                 break;
             default:
                 return new Exception('Connection no avaible');

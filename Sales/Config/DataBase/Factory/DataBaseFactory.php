@@ -1,18 +1,19 @@
 <?php
 require_once './Config/DataBase/Factory/interfaces/IFactory.php';
 
-class DataBaseFactory implements IFactory{
+class DataBaseFactory implements IFactory
+{
 
-    public function getDb(string $dataBaseName):object|string
+    public function getDb(string $dataBaseName): object|string
     {
-        switch($dataBaseName){
+        switch ($dataBaseName) {
             case 'MYSQL':
                 require_once './Config/DataBase/Mysql.php';
                 return Mysql::connect();
                 break;
-            case 'POSGRESS':
-                require_once '../Posgress.php';
-                return 'por ahora nada';
+            case 'MONGO':
+                require_once './Config/DataBase/Mongodb.php';
+                return Mongo::connect();
                 break;
             default:
                 return new Exception('Connection no avaible');
