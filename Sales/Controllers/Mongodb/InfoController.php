@@ -14,11 +14,11 @@ class InfoController extends Controller{
         $response = $infoController->model->store($logs,'info');
         if($response){
             $msg = 'logs insert successfull';
-            $response = json_encode(['ok' => true, 'msg' => $msg]);
-                print_r($response);
+            $response = ['ok' => true, 'msg' => $msg];
         }else{
             $msg = "logs can't insert, plis check to try again";
-            $response = json_encode(['ok' => true, 'msg' => $msg]);
+            $response = ['ok' => true, 'msg' => $msg];
         }
+        return $response;
     }
 }

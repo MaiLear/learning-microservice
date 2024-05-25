@@ -1,10 +1,14 @@
 <?php
 require_once './Config/Controller.php';
 require_once './Controllers/Mongodb/InfoController.php';
+require_once './Responses/ControllerResponses.php';
 class ProductController extends Controller
 {
+    private $responses;
     public function __construct()
     {
+        $this->responses = ControllerResponses::getInstace();
+        $this->responses->clearResponses();
         $afterRouteModel = 'Mysql';
         parent::__construct($afterRouteModel);
     }
@@ -12,67 +16,49 @@ class ProductController extends Controller
     public function index()
     {
         $data = $this->model->getAllProducts('products');
-        print_r($data);
+        echo json_encode($data);
     }
 
     public function store()
     {
-        $msg = '';
-        $responseCode = '';
-        $response = '';
-        if (count($_POST) == 0) {
-            $msg = 'not attribute found in array $_POST';
-            $responseCode = 401;
-            $response = json_encode(['ok' => false, 'msg' => $msg]);
+        $valuesFromApi = json_decode(file_get_contents('php://input'), true);
+        if (count($valuesFromApi) == 0) {
+            $this->responses->setResponses('store', ['ok' => false, 'msg' => 'not attribute found in array $valuesFromApi', 'responseCode' => 401]);
         } else {
-            $response = $this->model->store('products', $_POST);
-            if ($response) {
-                $msg = 'products saved sucessfull';
-                $responseCode = 201;
-                $response = json_encode(['ok' => true, 'msg' => $msg]);
+            $dataBaseResponse = $this->model->store('products', $valuesFromApi);
+            if (!is_string($dataBaseResponse)) {
+                $this->responses->setResponses('store', ['ok' => true, 'msg' => 'products saved sucessfull', 'responseCode' => 201]);
             } else {
-                $msg = 'products dont saved, internal serve error';
-                $responseCode = 500;
-                $response = json_encode(['ok' => false, 'msg' => $msg]);
+                $this->responses->setResponses('store', ['ok' => false, 'msg' => $dataBaseResponse, 'responseCode' => 500]);
             }
-            //Se agrega un registro a los logs
-            if ($responseCode == 200 || $responseCode == 201) {
-                InfoController::store(['normal_info' => $msg, 'anormal_info' => 0, 'response_code' => $responseCode]);
-            } else {
-                InfoController::store(['normal_info' => 0, 'anormal_info' => $msg, 'response_code' => $responseCode]);
-            }
-
-            http_response_code($responseCode);
-            print_r($response);
         }
+        //Se agrega un registro a los logs
+        $controllerResponse = $this->responses->getResponses('store');
+        $this->responses->setResponses('logs', ['info' => $controllerResponse['msg'], 'response_code' => $controllerResponse['responseCode']]);
+
+        $logs = InfoController::store($this->responses->getResponses('logs'));
+
+        echo json_encode([$this->responses->getResponses('store'),$logs]);
     }
     public function update(int $id)
     {
-        $msg = '';
-        $responseCode = '';
-        $response = '';
-        if (count($_POST) == 0) {
-            $msg = 'not attribute found in array $_POST';
-            $responseCode = 401;
-            $response = json_encode(['ok' => false, 'msg' => $msg]);
+        $valuesFromApi = json_decode(file_get_contents('php://input'), true);
+        if (count($valuesFromApi) == 0) {
+            $this->responses->setResponses('update', ['ok' => false, 'msg' => 'not attribute found in array $valuesFromApi', 'responseCode' => 401]);
         } else {
-            $response = $this->model->update('products', $id, $_POST);
-            if ($response) {
-                $msg = 'products update sucessfull';
-                $responseCode = 201;
-                $response = json_encode(['ok' => true, 'msg' => $msg]);
+            $dataBaseResponse = $this->model->update('products', $id, $valuesFromApi);
+            if (!is_string($dataBaseResponse)) {
+                $this->responses->setResponses('update', ['ok' => true, 'msg' => 'products update sucessfull', 'responseCode' => 201]);
             } else {
-                $responseCode = 500;
-                $response = json_encode(['ok' => false, 'msg' => 'products dont saving, internal serve error']);
+                $this->responses->setResponses('update', ['ok' => false, 'msg' => $dataBaseResponse, 'responseCode' => 500]);
             }
-            //Se agrega un registro a los logs
-            if ($responseCode == 200 || $responseCode == 201) {
-                InfoController::store(['normal_info' => $msg, 'anormal_info' => 0, 'response_code' => $responseCode]);
-            } else {
-                InfoController::store(['normal_info' => 0, 'anormal_info' => $msg, 'response_code' => $responseCode]);
-            }
-            http_response_code($responseCode);
-            print_r($response);
         }
+        //Se agrega un registro a los logs
+        $controllerResponse = $this->responses->getResponses('update');
+        $this->responses->setResponses('logs', ['info' => $controllerResponse['msg'], 'response_code' => $controllerResponse['responseCode']]);
+
+        $logs = InfoController::store($this->responses->getResponses('logs'));
+
+        echo json_encode([$this->responses->getResponses('update'),$logs]);
     }
 }

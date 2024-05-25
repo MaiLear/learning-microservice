@@ -13,7 +13,7 @@ class Product extends Query{
         return $data;
     }
 
-    public function store(string $tableName,array $atributtes):bool
+    public function store(string $tableName,array $atributtes):bool|string
     {
         $sql = "INSERT INTO $tableName(";
         $secondPartSql = "VALUES(";
@@ -28,7 +28,7 @@ class Product extends Query{
         return $this->saveOrUpdate($sql,$values);
     }
 
-    public function update(string $tableName,int $id,array $attributes):bool
+    public function update(string $tableName,int $id,array $attributes):bool|string
     {
         $sql = "UPDATE $tableName SET ";
         $values = array();

@@ -14,7 +14,7 @@ class Presale extends Query{
         return $data;
     }
 
-    public function store(string $tableName,array $atributtes):bool
+    public function store(string $tableName,array $atributtes):bool|string
     {
         $sql = "INSERT INTO $tableName(";
         $secondPartSql = "VALUES(";
