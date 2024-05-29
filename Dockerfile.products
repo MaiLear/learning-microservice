@@ -8,6 +8,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
+RUN composer install --prefer-dist --no-dev --no-scripts --no-progress --no-interaction
+
+
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN apt-get update && apt-get install -y \
@@ -22,6 +25,8 @@ RUN pecl install mongodb-1.19.0 \
 && docker-php-ext-enable mongodb zip
 
 COPY ./Products /var/www/html
+
+RUN composer dump-autoload --optimize
 
 
 EXPOSE 80
